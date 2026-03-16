@@ -123,17 +123,15 @@ if (gradientUrl) {
     ctx.fillStyle = barColor;
     ctx.fillRect(0, 0, OUTPUT_WIDTH, BAR_HEIGHT);
 
-    // 4. Logo oben links
-    if (logoUrl) {
-      try {
-        const logo = await loadImageFromUrl(logoUrl);
-        const lx   = LOGO_PADDING;
-        const ly   = BAR_HEIGHT + LOGO_PADDING;
-        ctx.drawImage(logo, lx, ly, LOGO_WIDTH, LOGO_HEIGHT);
-      } catch (e) {
-        console.warn('Logo konnte nicht geladen werden:', e.message);
-      }
-    }
+// 4. Brand-Overlay über das ganze Bild
+if (logoUrl) {
+  try {
+    const brandOverlay = await loadImageFromUrl(logoUrl);
+    ctx.drawImage(brandOverlay, 0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
+  } catch (e) {
+    console.warn('Brand-Overlay konnte nicht geladen werden:', e.message);
+  }
+}
 
     // 5. Text unten links
     const textX      = LOGO_PADDING;
