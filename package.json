@@ -1,0 +1,14 @@
+{
+  "name": "wcd-image-service",
+  "version": "1.0.0",
+  "description": "Event image overlay service for World Cleanup Day Germany",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "canvas": "^2.11.2",
+    "express": "^4.18.2",
+    "node-fetch": "^2.7.0"
+  }
+}
