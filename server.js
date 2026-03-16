@@ -191,7 +191,12 @@ app.post('/generate', async (req, res) => {
       ctx.font = 'bold 64px Inter';
       ctx.fillStyle = '#textColor';
 
-      const lines = wrapText(ctx, title, maxWidth).slice(0, 3);
+let lines = wrapText(ctx, title, maxWidth);
+
+if (lines.length > 3) {
+  lines = lines.slice(0, 3);
+  lines[2] = lines[2].replace(/\s+\S*$/, '') + '…';
+}
       const lineHeight = 74;
       const startY = textBottom - ((lines.length - 1) * lineHeight);
 
