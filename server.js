@@ -101,12 +101,21 @@ app.post('/generate', async (req, res) => {
       ctx.drawImage(basImg, sx, sy, sw, sh);
     }
 
-    // 2. Dunkles Gradient-Overlay (Text-Lesbarkeit)
-    const grad = ctx.createLinearGradient(0, OUTPUT_HEIGHT * 0.35, 0, OUTPUT_HEIGHT);
-    grad.addColorStop(0, 'rgba(0,0,0,0)');
-    grad.addColorStop(1, 'rgba(0,0,0,0.78)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
+// 2. Gradient-Overlay
+if (gradientUrl) {
+  try {
+    const gradientImg = await loadImageFromUrl(gradientUrl);
+    ctx.drawImage(gradientImg, 0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
+  } catch (e) {
+    console.warn('Gradient konnte nicht geladen werden:', e.message);
+  }
+} else {
+  const grad = ctx.createLinearGradient(0, OUTPUT_HEIGHT * 0.35, 0, OUTPUT_HEIGHT);
+  grad.addColorStop(0, 'rgba(0,0,0,0)');
+  grad.addColorStop(1, 'rgba(0,0,0,0.78)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
+}
 
     // 3. Kategorie-Leiste oben (volle Breite)
     const barColor = CATEGORY_COLORS[category] || '#E5006A';
