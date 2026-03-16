@@ -22,6 +22,9 @@ COPY package.json ./
 RUN npm install --production
 
 COPY server.js ./
+COPY server.js ./
+COPY Inter-Bold.ttf ./
+COPY Inter-Light.ttf ./
 
 EXPOSE 3000
 
