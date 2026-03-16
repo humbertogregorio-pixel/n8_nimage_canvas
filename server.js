@@ -158,6 +158,7 @@ app.post('/generate', async (req, res) => {
     const barColor = CATEGORY_COLORS[category] || '#E5006A';
     ctx.fillStyle = barColor;
     ctx.fillRect(0, 0, OUTPUT_WIDTH, BAR_HEIGHT);
+    const textColor = category === 'kita_cleanup' ? '#000000' : '#ffffff';
 
     // 4. Brand-Overlay vollflächig
     if (logoUrl) {
@@ -177,14 +178,14 @@ app.post('/generate', async (req, res) => {
     // Datum
     if (date) {
     ctx.font = '30px Inter';
-      ctx.fillStyle = barColor;
+      ctx.fillStyle = textColor;
       ctx.fillText(formatDate(String(date)), textX, textBottom - 140);
     }
 
     // Titel
     if (title) {
       ctx.font = 'bold 64px Inter';
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = '#textColor';
 
       const lines = wrapText(ctx, title, maxWidth).slice(0, 3);
       const lineHeight = 74;
