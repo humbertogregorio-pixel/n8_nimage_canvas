@@ -1,5 +1,19 @@
 const express = require('express');
-const { createCanvas, loadImage } = require('canvas');
+const { createCanvas, loadImage, registerFont } = require('canvas');
+const path = require('path');
+
+
+registerFont(path.join(__dirname, 'Inter-Bold.ttf'), {
+  family: 'Inter',
+  weight: 'bold'
+});
+
+registerFont(path.join(__dirname, 'Inter-Light.ttf'), {
+  family: 'Inter',
+  weight: 'normal'
+});
+
+
 const fetch = require('node-fetch');
 
 const app = express();
@@ -162,14 +176,14 @@ app.post('/generate', async (req, res) => {
 
     // Datum
     if (date) {
-      ctx.font = 'bold 30px sans-serif';
+    ctx.font = '30px Inter';
       ctx.fillStyle = barColor;
       ctx.fillText(formatDate(String(date)), textX, textBottom - 140);
     }
 
     // Titel
     if (title) {
-      ctx.font = 'bold 64px sans-serif';
+      ctx.font = 'bold 64px Inter';
       ctx.fillStyle = '#ffffff';
 
       const lines = wrapText(ctx, title, maxWidth).slice(0, 3);
