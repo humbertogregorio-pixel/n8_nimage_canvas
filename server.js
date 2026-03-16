@@ -8,8 +8,8 @@ app.use(express.json({ limit: '20mb' }));
 // ──────────────────────────────────────────────
 // CONFIG
 // ──────────────────────────────────────────────
-const OUTPUT_WIDTH  = 1200;
-const OUTPUT_HEIGHT = 630;
+const OUTPUT_WIDTH  = 1080;
+const OUTPUT_HEIGHT = 1350;
 const BAR_HEIGHT    = 12;   // farbige Kategorie-Leiste oben
 const LOGO_WIDTH    = 160;
 const LOGO_HEIGHT   = 48;
