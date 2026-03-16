@@ -73,6 +73,7 @@ app.post('/generate', async (req, res) => {
       date,           // YYYYMMDD
       category,       // cleanup | kita_cleanup | schul_cleanup
       logoUrl,        // URL des WCD-Logos
+        gradientUrl,
     } = req.body;
 
     const canvas = createCanvas(OUTPUT_WIDTH, OUTPUT_HEIGHT);
