@@ -76,7 +76,7 @@ app.post('/generate', async (req, res) => {
       logoUrl,        // URL des WCD-Logos
         gradientUrl,
     } = req.body;
-
+console.log('DEBUG imageBase64:', !!imageBase64, imageBase64 ? imageBase64.slice(0, 40) : 'leer');
     const canvas = createCanvas(OUTPUT_WIDTH, OUTPUT_HEIGHT);
     const ctx    = canvas.getContext('2d');
 
