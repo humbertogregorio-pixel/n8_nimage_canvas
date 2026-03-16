@@ -31,7 +31,8 @@ async function loadImageFromUrl(url) {
 }
 
 async function loadImageFromBase64(b64) {
-  const buf = Buffer.from(b64, 'base64');
+  const cleaned = b64.replace(/^data:image\/\w+;base64,/, '');
+  const buf = Buffer.from(cleaned, 'base64');
   return loadImage(buf);
 }
 
