@@ -162,6 +162,4 @@ app.post('/generate', async (req, res) => {
 app.get('/health', (_, res) => res.json({ ok: true }));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => 
-  console.log(`WCD Image Service läuft auf Port ${PORT}`)
-          );
+app.listen(PORT, '0.0.0.0', () => console.log(`WCD Image Service läuft auf Port ${PORT}`));
