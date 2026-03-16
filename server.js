@@ -69,13 +69,17 @@ function wrapText(ctx, text, maxWidth) {
   return lines;
 }
 
-function formatDate(dateStr) {
-  // erwartet YYYYMMDD
-  if (!dateStr || String(dateStr).length !== 8) return dateStr || '';
-  const s = String(dateStr);
-  const y = s.slice(0, 4);
-  const m = s.slice(4, 6);
-  const d = s.slice(6, 8);
+function formatDate(serial) {
+  const n = Number(serial);
+  if (!n) return '';
+
+  const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+  const date = new Date(excelEpoch.getTime() + n * 86400000);
+
+  const d = String(date.getUTCDate()).padStart(2, '0');
+  const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const y = date.getUTCFullYear();
+
   return `${d}.${m}.${y}`;
 }
 
