@@ -180,30 +180,32 @@ app.post('/generate', async (req, res) => {
     const maxWidth = OUTPUT_WIDTH - 120;
 
     // Datum
-    if (date) {
-    ctx.font = 'bold 48px Inter'';
-      ctx.fillStyle = textColor;
-      ctx.fillText(formatDate(String(date)), textX, textBottom - 140);
-    }
-
-    // Titel
-    if (title) {
-      ctx.font = 'bold 64px Inter';
-      ctx.fillStyle = '#textColor';
-
-let lines = wrapText(ctx, title, maxWidth);
-
-if (lines.length > 3) {
-  lines = lines.slice(0, 3);
-  lines[2] = lines[2].replace(/\s+\S*$/, '') + '…';
+if (date) {
+  ctx.font = 'bold 48px Inter';
+  ctx.fillStyle = textColor;
+  ctx.fillText(formatDate(String(date)), textX, textBottom - 140);
 }
-      const lineHeight = 74;
-      const startY = textBottom - ((lines.length - 1) * lineHeight);
 
-      lines.forEach((line, i) => {
-        ctx.fillText(line, textX, startY + i * lineHeight);
-      });
-    }
+
+// Titel
+if (title) {
+  ctx.font = 'bold 64px Inter';
+  ctx.fillStyle = textColor;
+
+  let lines = wrapText(ctx, title, maxWidth);
+
+  if (lines.length > 3) {
+    lines = lines.slice(0, 3);
+    lines[2] = lines[2].replace(/\s+\S*$/, '') + '…';
+  }
+
+  const lineHeight = 74;
+  const startY = textBottom - ((lines.length - 1) * lineHeight);
+
+  lines.forEach((line, i) => {
+    ctx.fillText(line, textX, startY + i * lineHeight);
+  });
+}
 
     // 6. Output
     const buffer = canvas.toBuffer('image/png');
