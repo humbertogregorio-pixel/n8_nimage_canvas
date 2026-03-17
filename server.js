@@ -181,7 +181,7 @@ app.post('/generate', async (req, res) => {
 
     // Datum
     if (date) {
-    ctx.font = '30px Inter';
+    ctx.font = 'bold 48px Inter'';
       ctx.fillStyle = textColor;
       ctx.fillText(formatDate(String(date)), textX, textBottom - 140);
     }
