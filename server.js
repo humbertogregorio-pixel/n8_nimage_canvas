@@ -69,18 +69,23 @@ function wrapText(ctx, text, maxWidth) {
   return lines;
 }
 
-function formatDate(serial) {
-  const n = Number(serial);
-  if (!n) return '';
+// 👉 HIER EINFÜGEN
+function normalizeDate(value) {
+  if (value === undefined || value === null || value === '') return '';
 
-  const excelEpoch = new Date(Date.UTC(1899, 11, 30));
-  const date = new Date(excelEpoch.getTime() + n * 86400000);
+  if (typeof value === 'number' || /^\d+(\.\d+)?$/.test(String(value))) {
+    const n = Number(value);
+    const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+    const date = new Date(excelEpoch.getTime() + n * 86400000);
 
-  const d = String(date.getUTCDate()).padStart(2, '0');
-  const m = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const y = date.getUTCFullYear();
+    const d = String(date.getUTCDate()).padStart(2, '0');
+    const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const y = date.getUTCFullYear();
 
-  return `${d}.${m}.${y}`;
+    return `${d}.${m}.${y}`;
+  }
+
+  return String(value);
 }
 
 // ──────────────────────────────────────────────
@@ -183,7 +188,7 @@ app.post('/generate', async (req, res) => {
 if (date) {
   ctx.font = 'bold 48px Inter';
   ctx.fillStyle = textColor;
-  ctx.fillText(formatDate(String(date)), textX, textBottom - 140);
+  ctx.fillText(normalizeDate(date), textX, textBottom - 140);
 }
 
 
