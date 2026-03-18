@@ -102,7 +102,7 @@ app.post('/generate', async (req, res) => {
       logoUrl,
       gradientUrl,
     } = req.body;
-
+console.log('DEBUG payload:', { title, date, category });
     console.log(
       'DEBUG imageBase64:',
       !!imageBase64,
