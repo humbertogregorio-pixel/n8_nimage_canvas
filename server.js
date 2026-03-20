@@ -1,8 +1,11 @@
 const express = require('express');
 const { createCanvas, loadImage, registerFont } = require('canvas');
 const path = require('path');
+const fetch = require('node-fetch');
 
-
+// ──────────────────────────────────────────────
+// FONTS REGISTER
+// ──────────────────────────────────────────────
 registerFont(path.join(__dirname, 'Inter-Bold.ttf'), {
   family: 'Inter',
   weight: 'bold'
@@ -13,8 +16,10 @@ registerFont(path.join(__dirname, 'Inter-Light.ttf'), {
   weight: 'normal'
 });
 
-
-const fetch = require('node-fetch');
+// Die neue Black Italic Headline-Schrift
+registerFont(path.join(__dirname, 'Inter_28pt-BlackItalic.ttf'), {
+  family: 'InterBlackItalic'
+});
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -69,7 +74,6 @@ function wrapText(ctx, text, maxWidth) {
   return lines;
 }
 
-// 👉 HIER EINFÜGEN
 function normalizeDate(value) {
   if (value === undefined || value === null || value === '') return '';
 
@@ -102,12 +106,6 @@ app.post('/generate', async (req, res) => {
       logoUrl,
       gradientUrl,
     } = req.body;
-console.log('DEBUG payload:', { title, date, category });
-    console.log(
-      'DEBUG imageBase64:',
-      !!imageBase64,
-      imageBase64 ? imageBase64.slice(0, 40) : 'leer'
-    );
 
     const canvas = createCanvas(OUTPUT_WIDTH, OUTPUT_HEIGHT);
     const ctx = canvas.getContext('2d');
@@ -118,7 +116,6 @@ console.log('DEBUG payload:', { title, date, category });
 
     // 1. Basisbild
     let basImg = null;
-
     if (imageBase64) {
       basImg = await loadImageFromBase64(imageBase64);
     } else if (imageUrl) {
@@ -126,17 +123,11 @@ console.log('DEBUG payload:', { title, date, category });
     }
 
     if (basImg) {
-      // Cover-Fit für 4:5
-      const scale = Math.max(
-        OUTPUT_WIDTH / basImg.width,
-        OUTPUT_HEIGHT / basImg.height
-      );
-
+      const scale = Math.max(OUTPUT_WIDTH / basImg.width, OUTPUT_HEIGHT / basImg.height);
       const drawWidth = basImg.width * scale;
       const drawHeight = basImg.height * scale;
       const offsetX = (OUTPUT_WIDTH - drawWidth) / 2;
       const offsetY = (OUTPUT_HEIGHT - drawHeight) / 2;
-
       ctx.drawImage(basImg, offsetX, offsetY, drawWidth, drawHeight);
     }
 
@@ -146,9 +137,6 @@ console.log('DEBUG payload:', { title, date, category });
         const gradientImg = await loadImageFromUrl(gradientUrl);
         ctx.drawImage(gradientImg, 0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
       } catch (e) {
-        console.warn('Gradient konnte nicht geladen werden:', e.message);
-
-        // Fallback-Gradient
         const grad = ctx.createLinearGradient(0, OUTPUT_HEIGHT * 0.35, 0, OUTPUT_HEIGHT);
         grad.addColorStop(0, 'rgba(0,0,0,0)');
         grad.addColorStop(1, 'rgba(0,0,0,0.78)');
@@ -169,13 +157,13 @@ console.log('DEBUG payload:', { title, date, category });
     ctx.fillRect(0, 0, OUTPUT_WIDTH, BAR_HEIGHT);
     const textColor = category === 'kita_cleanup' ? '#000000' : '#ffffff';
 
-    // 4. Brand-Overlay vollflächig
+    // 4. Brand-Overlay
     if (logoUrl) {
       try {
         const brandOverlay = await loadImageFromUrl(logoUrl);
         ctx.drawImage(brandOverlay, 0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
       } catch (e) {
-        console.warn('Brand-Overlay konnte nicht geladen werden:', e.message);
+        console.warn('Brand-Overlay Error:', e.message);
       }
     }
 
@@ -184,33 +172,31 @@ console.log('DEBUG payload:', { title, date, category });
     const textBottom = OUTPUT_HEIGHT - 120;
     const maxWidth = OUTPUT_WIDTH - 120;
 
-    // Datum
-if (date) {
-  ctx.font = 'bold 48px Inter';
-  ctx.fillStyle = textColor;
-  ctx.fillText(normalizeDate(date), textX, textBottom - 140);
-}
+    // DATUM (Inter Bold)
+    if (date) {
+      ctx.font = 'bold 48px Inter';
+      ctx.fillStyle = textColor;
+      ctx.fillText(normalizeDate(date), textX, textBottom - 160); // etwas höher geschoben wegen Black Italic
+    }
 
+    // TITEL (Inter Black Italic)
+    if (title) {
+      ctx.font = '64px "InterBlackItalic"';
+      ctx.fillStyle = textColor;
 
-// Titel
-if (title) {
-  ctx.font = 'bold 64px Inter';
-  ctx.fillStyle = textColor;
+      let lines = wrapText(ctx, title, maxWidth);
+      if (lines.length > 3) {
+        lines = lines.slice(0, 3);
+        lines[2] = lines[2].replace(/\s+\S*$/, '') + '…';
+      }
 
-  let lines = wrapText(ctx, title, maxWidth);
+      const lineHeight = 82; // Erhöht für Black Italic
+      const startY = textBottom - ((lines.length - 1) * lineHeight);
 
-  if (lines.length > 3) {
-    lines = lines.slice(0, 3);
-    lines[2] = lines[2].replace(/\s+\S*$/, '') + '…';
-  }
-
-  const lineHeight = 74;
-  const startY = textBottom - ((lines.length - 1) * lineHeight);
-
-  lines.forEach((line, i) => {
-    ctx.fillText(line, textX, startY + i * lineHeight);
-  });
-}
+      lines.forEach((line, i) => {
+        ctx.fillText(line, textX, startY + i * lineHeight);
+      });
+    }
 
     // 6. Output
     const buffer = canvas.toBuffer('image/png');
