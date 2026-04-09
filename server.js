@@ -177,8 +177,8 @@ app.post('/generate', async (req, res) => {
     const textX           = 60;
     const maxWidth        = OUTPUT_WIDTH - 120;
     const lineHeight      = 82;
-    const FONT_SIZE_TITLE = 64;
-    const FONT_SIZE_DATE  = 48;
+    const FONT_SIZE_TITLE = 48;
+    const FONT_SIZE_DATE  = 36;
 
     // Feste Startposition des gesamten Text-Blocks
     const DATE_Y        = OUTPUT_HEIGHT - 330;   // Datum-Baseline: immer hier
