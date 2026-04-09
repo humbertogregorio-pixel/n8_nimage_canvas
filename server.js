@@ -16,7 +16,6 @@ registerFont(path.join(__dirname, 'Inter-Light.ttf'), {
   weight: 'normal'
 });
 
-// Die neue Black Italic Headline-Schrift
 registerFont(path.join(__dirname, 'Inter_28pt-BlackItalic.ttf'), {
   family: 'InterBlackItalic'
 });
@@ -32,9 +31,9 @@ const OUTPUT_HEIGHT = 1350;
 const BAR_HEIGHT    = 12;
 
 const CATEGORY_COLORS = {
-  cleanup: '#E5006A',
-  kita_cleanup: '#F5A623',
-  schul_cleanup: '#4A90D9',
+  cleanup:        '#E5006A',
+  kita_cleanup:   '#F5A623',
+  schul_cleanup:  '#4A90D9',
 };
 
 // ──────────────────────────────────────────────
@@ -77,18 +76,24 @@ function wrapText(ctx, text, maxWidth) {
 function normalizeDate(value) {
   if (value === undefined || value === null || value === '') return '';
 
+  // ISO-String: 2026-11-26 oder 2026-11-26T00:00:00
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+    const [y, m, d] = value.split('T')[0].split('-');
+    return `${d}.${m}.${y}`;
+  }
+
+  // Excel-Seriennummer
   if (typeof value === 'number' || /^\d+(\.\d+)?$/.test(String(value))) {
     const n = Number(value);
     const excelEpoch = new Date(Date.UTC(1899, 11, 30));
     const date = new Date(excelEpoch.getTime() + n * 86400000);
-
     const d = String(date.getUTCDate()).padStart(2, '0');
     const m = String(date.getUTCMonth() + 1).padStart(2, '0');
     const y = date.getUTCFullYear();
-
     return `${d}.${m}.${y}`;
   }
 
+  // Fallback: Wert so zurückgeben wie er ist
   return String(value);
 }
 
@@ -124,9 +129,9 @@ app.post('/generate', async (req, res) => {
 
     if (basImg) {
       const scale = Math.max(OUTPUT_WIDTH / basImg.width, OUTPUT_HEIGHT / basImg.height);
-      const drawWidth = basImg.width * scale;
+      const drawWidth  = basImg.width  * scale;
       const drawHeight = basImg.height * scale;
-      const offsetX = (OUTPUT_WIDTH - drawWidth) / 2;
+      const offsetX = (OUTPUT_WIDTH  - drawWidth)  / 2;
       const offsetY = (OUTPUT_HEIGHT - drawHeight) / 2;
       ctx.drawImage(basImg, offsetX, offsetY, drawWidth, drawHeight);
     }
@@ -152,12 +157,12 @@ app.post('/generate', async (req, res) => {
     }
 
     // 3. Kategorie-Leiste oben
-    const barColor = CATEGORY_COLORS[category] || '#E5006A';
-    ctx.fillStyle = barColor;
+    const barColor  = CATEGORY_COLORS[category] || '#E5006A';
+    ctx.fillStyle   = barColor;
     ctx.fillRect(0, 0, OUTPUT_WIDTH, BAR_HEIGHT);
     const textColor = category === 'kita_cleanup' ? '#000000' : '#ffffff';
 
-    // 4. Brand-Overlay
+    // 4. Brand-Overlay (Logo)
     if (logoUrl) {
       try {
         const brandOverlay = await loadImageFromUrl(logoUrl);
@@ -167,65 +172,43 @@ app.post('/generate', async (req, res) => {
       }
     }
 
-// 5. Text unten links
-const textX      = 60;
-const textBottom = OUTPUT_HEIGHT - 120;   // 1230 – Baseline der letzten Titelzeile
-const maxWidth   = OUTPUT_WIDTH - 120;
-const lineHeight = 82;
+    // 5. Text unten links
+    const textX           = 60;
+    const textBottom      = OUTPUT_HEIGHT - 120;   // Baseline letzte Titelzeile
+    const maxWidth        = OUTPUT_WIDTH - 120;
+    const lineHeight      = 82;
+    const FONT_SIZE_TITLE = 64;
+    const FONT_SIZE_DATE  = 48;
 
-// ── Titel-Zeilen berechnen (ZUERST, damit wir die Höhe kennen) ──
-let titleLines = [];
-if (title) {
-  ctx.font = '64px "InterBlackItalic"';
-  titleLines = wrapText(ctx, title, maxWidth);
-  if (titleLines.length > 3) {
-    titleLines = titleLines.slice(0, 3);
-    titleLines[2] = titleLines[2].replace(/\s+\S*$/, '') + '…';
-  }
-}
-
-// Baseline der ersten Titelzeile
-const titleStartY = textBottom - (titleLines.length - 1) * lineHeight;
-
-// ── DATUM – immer 24 px oberhalb des Titels ──
-if (date) {
-  ctx.font      = 'bold 48px Inter';
-  ctx.fillStyle = textColor;
-  ctx.fillText(normalizeDate(date), textX, titleStartY - 24);
-}
-
-// ── TITEL ──
-if (titleLines.length > 0) {
-  ctx.font      = '64px "InterBlackItalic"';
-  ctx.fillStyle = textColor;
-  titleLines.forEach((line, i) => {
-    ctx.fillText(line, textX, titleStartY + i * lineHeight);
-  });
-}
-
-    // DATUM (Inter Bold)
-    if (date) {
-      ctx.font = 'bold 48px Inter';
-      ctx.fillStyle = textColor;
-      ctx.fillText(normalizeDate(date), textX, textBottom - 160); // etwas höher geschoben wegen Black Italic
+    // ── Titel-Zeilen berechnen (zuerst, damit wir die Höhe kennen) ──
+    let titleLines = [];
+    if (title) {
+      ctx.font = `${FONT_SIZE_TITLE}px "InterBlackItalic"`;
+      titleLines = wrapText(ctx, title, maxWidth);
+      if (titleLines.length > 3) {
+        titleLines = titleLines.slice(0, 3);
+        titleLines[2] = titleLines[2].replace(/\s+\S*$/, '') + '…';
+      }
     }
 
-    // TITEL (Inter Black Italic)
-    if (title) {
-      ctx.font = '64px "InterBlackItalic"';
+    // Baseline der ersten Titelzeile
+    const titleStartY = textBottom - (titleLines.length - 1) * lineHeight;
+
+    // ── DATUM – cap-height des Titels (~0.72 × fontSize) + 20 px Luft ──
+    const dateY = titleStartY - Math.round(FONT_SIZE_TITLE * 0.72) - 20;
+
+    if (date) {
+      ctx.font      = `bold ${FONT_SIZE_DATE}px Inter`;
       ctx.fillStyle = textColor;
+      ctx.fillText(normalizeDate(date), textX, dateY);
+    }
 
-      let lines = wrapText(ctx, title, maxWidth);
-      if (lines.length > 3) {
-        lines = lines.slice(0, 3);
-        lines[2] = lines[2].replace(/\s+\S*$/, '') + '…';
-      }
-
-      const lineHeight = 82; // Erhöht für Black Italic
-      const startY = textBottom - ((lines.length - 1) * lineHeight);
-
-      lines.forEach((line, i) => {
-        ctx.fillText(line, textX, startY + i * lineHeight);
+    // ── TITEL ──
+    if (titleLines.length > 0) {
+      ctx.font      = `${FONT_SIZE_TITLE}px "InterBlackItalic"`;
+      ctx.fillStyle = textColor;
+      titleLines.forEach((line, i) => {
+        ctx.fillText(line, textX, titleStartY + i * lineHeight);
       });
     }
 
@@ -233,6 +216,7 @@ if (titleLines.length > 0) {
     const buffer = canvas.toBuffer('image/png');
     res.set('Content-Type', 'image/png');
     res.send(buffer);
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
