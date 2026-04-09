@@ -167,10 +167,41 @@ app.post('/generate', async (req, res) => {
       }
     }
 
-    // 5. Text unten links
-    const textX = 60;
-    const textBottom = OUTPUT_HEIGHT - 120;
-    const maxWidth = OUTPUT_WIDTH - 120;
+// 5. Text unten links
+const textX      = 60;
+const textBottom = OUTPUT_HEIGHT - 120;   // 1230 – Baseline der letzten Titelzeile
+const maxWidth   = OUTPUT_WIDTH - 120;
+const lineHeight = 82;
+
+// ── Titel-Zeilen berechnen (ZUERST, damit wir die Höhe kennen) ──
+let titleLines = [];
+if (title) {
+  ctx.font = '64px "InterBlackItalic"';
+  titleLines = wrapText(ctx, title, maxWidth);
+  if (titleLines.length > 3) {
+    titleLines = titleLines.slice(0, 3);
+    titleLines[2] = titleLines[2].replace(/\s+\S*$/, '') + '…';
+  }
+}
+
+// Baseline der ersten Titelzeile
+const titleStartY = textBottom - (titleLines.length - 1) * lineHeight;
+
+// ── DATUM – immer 24 px oberhalb des Titels ──
+if (date) {
+  ctx.font      = 'bold 48px Inter';
+  ctx.fillStyle = textColor;
+  ctx.fillText(normalizeDate(date), textX, titleStartY - 24);
+}
+
+// ── TITEL ──
+if (titleLines.length > 0) {
+  ctx.font      = '64px "InterBlackItalic"';
+  ctx.fillStyle = textColor;
+  titleLines.forEach((line, i) => {
+    ctx.fillText(line, textX, titleStartY + i * lineHeight);
+  });
+}
 
     // DATUM (Inter Bold)
     if (date) {
