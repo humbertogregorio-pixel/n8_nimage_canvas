@@ -173,42 +173,35 @@ app.post('/generate', async (req, res) => {
     }
 
     // 5. Text unten links
+    // Anker: Datum immer auf fester Y-Position → Titel wächst nach UNTEN
     const textX           = 60;
-    const textBottom      = OUTPUT_HEIGHT - 120;   // Baseline letzte Titelzeile
     const maxWidth        = OUTPUT_WIDTH - 120;
     const lineHeight      = 82;
     const FONT_SIZE_TITLE = 64;
     const FONT_SIZE_DATE  = 48;
 
-    // ── Titel-Zeilen berechnen (zuerst, damit wir die Höhe kennen) ──
-    let titleLines = [];
+    // Feste Startposition des gesamten Text-Blocks
+    const DATE_Y        = OUTPUT_HEIGHT - 330;   // Datum-Baseline: immer hier
+    const TITLE_START_Y = DATE_Y + 66;           // Titel-Baseline erste Zeile: immer hier
+
+    // ── DATUM ──
+    if (date) {
+      ctx.font      = `bold ${FONT_SIZE_DATE}px Inter`;
+      ctx.fillStyle = textColor;
+      ctx.fillText(normalizeDate(date), textX, DATE_Y);
+    }
+
+    // ── TITEL – wächst nach unten, max 3 Zeilen ──
     if (title) {
       ctx.font = `${FONT_SIZE_TITLE}px "InterBlackItalic"`;
-      titleLines = wrapText(ctx, title, maxWidth);
+      let titleLines = wrapText(ctx, title, maxWidth);
       if (titleLines.length > 3) {
         titleLines = titleLines.slice(0, 3);
         titleLines[2] = titleLines[2].replace(/\s+\S*$/, '') + '…';
       }
-    }
-
-    // Baseline der ersten Titelzeile
-    const titleStartY = textBottom - (titleLines.length - 1) * lineHeight;
-
-    // ── DATUM – cap-height des Titels (~0.72 × fontSize) + 20 px Luft ──
-    const dateY = titleStartY - Math.round(FONT_SIZE_TITLE * 0.72) - 20;
-
-    if (date) {
-      ctx.font      = `bold ${FONT_SIZE_DATE}px Inter`;
-      ctx.fillStyle = textColor;
-      ctx.fillText(normalizeDate(date), textX, dateY);
-    }
-
-    // ── TITEL ──
-    if (titleLines.length > 0) {
-      ctx.font      = `${FONT_SIZE_TITLE}px "InterBlackItalic"`;
       ctx.fillStyle = textColor;
       titleLines.forEach((line, i) => {
-        ctx.fillText(line, textX, titleStartY + i * lineHeight);
+        ctx.fillText(line, textX, TITLE_START_Y + i * lineHeight);
       });
     }
 
