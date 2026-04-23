@@ -174,10 +174,10 @@ app.post('/generate', async (req, res) => {
 
     // 5. Text unten links
     // Anker: Datum immer auf fester Y-Position → Titel wächst nach UNTEN
-    const textX           = 60;
+    const textX           = 80;
     const maxWidth        = OUTPUT_WIDTH - 120;
     const lineHeight      = 82;
-    const FONT_SIZE_TITLE = 60;
+    const FONT_SIZE_TITLE = 80;
     const FONT_SIZE_DATE  = 48;
 
     // Feste Startposition des gesamten Text-Blocks
