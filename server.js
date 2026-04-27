@@ -177,7 +177,7 @@ app.post('/generate', async (req, res) => {
     const textX           = 60;
     const maxWidth        = OUTPUT_WIDTH - 60;
     const lineHeight      = 105;
-    const FONT_SIZE_TITLE = 100;
+    const FONT_SIZE_TITLE = 90;
     const FONT_SIZE_DATE  = 48;
 
     // Feste Startposition des gesamten Text-Blocks
